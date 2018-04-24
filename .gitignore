@@ -1,0 +1,6 @@
+Outputs/
+*.bak
+SteeringWheel.uvguix.afbell
+SteeringWheel.uvguix.User
+SteeringWheel_BaseFrameworkTarget.dep
+*.dep
