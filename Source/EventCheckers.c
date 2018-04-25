@@ -39,10 +39,9 @@
 #include "EventCheckers.h"
 
 // non-Framework includes
-#include "SpeedCounterService.h"
-#include "QEI.h"
-#include "SteeringFeedback.h"
-#include "constants.h"
+#include "shiftRegisterRead.h"
+
+#define BIT0_HI 0x01
 
 
 // This is the event checking function sample. It is not intended to be 
@@ -119,58 +118,14 @@ bool Check4Keystroke(void)
     ThisEvent.EventParam = GetNewKey();
     // test distribution list functionality by sending the 'L' key out via
     // a distribution list.
-    if ( ThisEvent.EventParam == ' '){
-      PostSpeedCounter(ThisEvent);
+    if ( ThisEvent.EventParam == 'r'){
+      uint8_t reading = SR_Read(); 
+      uint8_t level = 0;
+      for(uint8_t i = 0; i < 8; i++){
+          if( (reading >> 0) & BIT0_HI) level = i;
+      }
+      printf("Level: raw(hex) = %x, highest(dec) = %d\n\r", reading, level);
     }
-    else if( ThisEvent.EventParam == 'p'){      // print position
-        PostQEI(ThisEvent);
-    }
-    else if( ThisEvent.EventParam == 's'){      // enable steering RTC feedback
-        ES_Event NewEvent;
-        NewEvent.EventType = ES_ENABLE_RTC; 
-        PostSteeringFeedback(NewEvent);
-    }
-    else if( ThisEvent.EventParam == 't'){      // disable steering RTC feedback
-        ES_Event NewEvent;
-        NewEvent.EventType = ES_DISABLE_RTC; 
-        PostSteeringFeedback(NewEvent);
-    }
-    else if( ThisEvent.EventParam == 'i'){      // increase steering RTC strength
-        ES_Event NewEvent;
-        NewEvent.EventType = ES_INC_RTC_STRENGTH; 
-        PostSteeringFeedback(NewEvent);
-    }
-    else if( ThisEvent.EventParam == 'd'){      // decrease steering RTC strength
-        ES_Event NewEvent;
-        NewEvent.EventType = ES_DEC_RTC_STRENGTH; 
-        PostSteeringFeedback(NewEvent);
-    }
-    else if( ThisEvent.EventParam == 'f'){      // motor mode: forward
-        setMotorMode(MOTOR_FWD);
-    }
-    else if( ThisEvent.EventParam == 'r'){      // motor mode: rev
-        setMotorMode(MOTOR_REV);
-    }
-    else if( ThisEvent.EventParam == 'b'){      // motor mode: brake
-        setMotorMode(MOTOR_BRAKE);
-    }
-    else if( ThisEvent.EventParam == 'o'){      // motor mode: off/freewheel
-        setMotorMode(MOTOR_OFF);
-    }
-    else if( ThisEvent.EventParam == '0'){      // print position of encoder 0
-        printf("\n\rEncoder2: %d",getEncoderPosition(ENCODER_0));
-    }
-    else if( ThisEvent.EventParam == '1'){      // print position of encoder 1
-        printf("\n\rEncoder2: %d",getEncoderPosition(ENCODER_1));
-    }
-    else if( ThisEvent.EventParam == 'T'){      // send timeout to spi
-        ES_Event NewEvent;
-        NewEvent.EventType = ES_TIMEOUT; 
-        PostSPIService(NewEvent);
-    }
-    
-    
-
     else{   // otherwise post to Service 0 for processing
       //PostTestHarnessService0( ThisEvent );
     }

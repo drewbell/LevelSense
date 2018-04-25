@@ -40,11 +40,11 @@
 // services are added in numeric sequence (1,2,3,...) with increasing 
 // priorities
 // the header file with the public function prototypes
-#define SERV_0_HEADER "ADService.h"
+#define SERV_0_HEADER "ButtonDebounce.h"
 // the name of the Init function
-#define SERV_0_INIT InitializeADService
+#define SERV_0_INIT InitializeButtonDebounce
 // the name of the run function
-#define SERV_0_RUN RunADService
+#define SERV_0_RUN RunButtonDebounceSM
 // How big should this services Queue be?
 #define SERV_0_QUEUE_SIZE 5
 
@@ -283,7 +283,7 @@ typedef enum {  ES_NO_EVENT = 0,
 // services are on that distribution list.
 #define NUM_DIST_LISTS 1
 #if NUM_DIST_LISTS > 0 
-#define DIST_LIST0 PostADService, PostSpeedCounter
+#define DIST_LIST0 PostButtonDebounce, PostButtonDebounce
 #endif
 #if NUM_DIST_LISTS > 1 
 #define DIST_LIST1 PostTemplateFSM
@@ -322,15 +322,15 @@ typedef enum {  ES_NO_EVENT = 0,
 // Unlike services, any combination of timers may be used and there is no
 // priority in servicing them
 #define TIMER_UNUSED ((pPostFunc)0)
-#define TIMER0_RESP_FUNC ES_PostList00
+#define TIMER0_RESP_FUNC TIMER_UNUSED
 #define TIMER1_RESP_FUNC PostButtonDebounce
 #define TIMER2_RESP_FUNC PostButtonDebounce
 #define TIMER3_RESP_FUNC PostButtonDebounce
-#define TIMER4_RESP_FUNC PostMotorService
-#define TIMER5_RESP_FUNC PostSpeedCounter
-#define TIMER6_RESP_FUNC PostQEI
-#define TIMER7_RESP_FUNC PostSteeringFeedback
-#define TIMER8_RESP_FUNC PostSPIService
+#define TIMER4_RESP_FUNC TIMER_UNUSED
+#define TIMER5_RESP_FUNC TIMER_UNUSED
+#define TIMER6_RESP_FUNC TIMER_UNUSED
+#define TIMER7_RESP_FUNC TIMER_UNUSED
+#define TIMER8_RESP_FUNC TIMER_UNUSED
 #define TIMER9_RESP_FUNC TIMER_UNUSED
 #define TIMER10_RESP_FUNC TIMER_UNUSED
 #define TIMER11_RESP_FUNC TIMER_UNUSED

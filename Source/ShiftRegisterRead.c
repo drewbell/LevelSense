@@ -1,19 +1,19 @@
 /****************************************************************************
  Module
-   ShiftRegisterWrite.c
+   ShiftRegisterRead.c
 
  Revision
    0.0.1
 
  Description
-   This module acts as the low level interface to a write only shift register.
+   This module acts as the low level interface to a read only shift register.
 
  Notes
 
  History
  When           Who     What/Why
  -------------- ---     --------
- 10/24/16 19:55 afb    first rodeo
+ 04/24/18 19:55 afb    Converting over from shiftRegisterWrite
  
 ****************************************************************************/
 // the common headers for C99 types 
@@ -37,99 +37,84 @@
 #include "BITDEFS.H"
 
 // readability defines
-#define DATA GPIO_PIN_0
+#define DATA_IN GPIO_PIN_0
 
-#define SCLK GPIO_PIN_1
-#define SCLK_HI BIT1HI
-#define SCLK_LO BIT1LO
+#define SH_LD GPIO_PIN_1
+#define SH_LD_HI BIT1HI
+#define SH_LD_LO BIT1LO
 
 #define RCLK GPIO_PIN_2
 #define RCLK_LO BIT2LO
 #define RCLK_HI BIT2HI
 
+#define NUM_BITS 8
+
 #define ALL_BITS (0xff<<2)
 #define GET_MSB_IN_LSB(x) ((x & 0x80)>>7)
 
 // an image of the last 8 bits written to the shift register
-static uint8_t LocalRegisterImage=0;
+static uint8_t localRegisterImage=0;
 
 // Create your own function header comment
-void SR_Init(void){
+void SR_Read_Init(void){
 
-// set up port B by enabling the peripheral clock and setting the direction of PB1 & PB2 to output
-// also set up port E by enabling peripheral clock and setting the direction of PE2 to output 
+// set up port B by enabling the peripheral clock
+// and setting the direction of PB1 & PB2 to output, PB0 as input
 
-// SET BIT 1 TO ENABLE PORT B Clock and wait until peripheral reports that its clock is ready
+  // SET BIT 1 TO ENABLE PORT B Clock and wait until peripheral reports that its clock is ready
 HWREG(SYSCTL_RCGCGPIO) |= SYSCTL_RCGCGPIO_R1; 
 while ((HWREG(SYSCTL_PRGPIO) & SYSCTL_PRGPIO_R1) != SYSCTL_PRGPIO_R1) 
 	;
 			
 //Write to the digital enable register to connect pins 1,2 to digital I/O ports
-HWREG(GPIO_PORTB_BASE+GPIO_O_DEN) |= (GPIO_PIN_1 | GPIO_PIN_2);
+HWREG(GPIO_PORTB_BASE+GPIO_O_DEN) |= (GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2);
 	
 //Set PB0, PB1, PB2 to be outputs
 HWREG(GPIO_PORTB_BASE+GPIO_O_DIR) |= (GPIO_PIN_1 | GPIO_PIN_2);
+HWREG(GPIO_PORTB_BASE+GPIO_O_DIR) &= ~GPIO_PIN_0;
 
-// also set up port E by enabling peripheral clock and setting the direction of PE2 to output 
+	
+// start with the SH_LD high and RCLK low 
 
-// SET BIT 4 TO ENABLE PORT E Clock and wait until peripheral reports that its clock is ready
-HWREG(SYSCTL_RCGCGPIO) |= SYSCTL_RCGCGPIO_R4; 
-while ((HWREG(SYSCTL_PRGPIO) & SYSCTL_PRGPIO_R4) != SYSCTL_PRGPIO_R4) 
-	;
-	
-//Write to the digital enable register to connect pin 2 to digital I/O ports
-HWREG(GPIO_PORTE_BASE+GPIO_O_DEN) |= (GPIO_PIN_2);
-	
-//Set PE2 to be outputs
-HWREG(GPIO_PORTE_BASE+GPIO_O_DIR) |= (GPIO_PIN_2);
-	
-// JEC start with the data & sclk lines low and the RCLK line high
-HWREG(GPIO_PORTE_BASE+(GPIO_O_DATA + ALL_BITS)) &= BIT3LO;		//data line PE2
-HWREG(GPIO_PORTB_BASE+(GPIO_O_DATA + ALL_BITS)) &= SCLK_LO;		//SCLK PB1
-HWREG(GPIO_PORTB_BASE+(GPIO_O_DATA + ALL_BITS)) |= RCLK_HI;		//RCLK PB2
+HWREG(GPIO_PORTB_BASE+(GPIO_O_DATA + ALL_BITS)) |= SH_LD_HI;		//SH_LD PB1
+HWREG(GPIO_PORTB_BASE+(GPIO_O_DATA + ALL_BITS)) &= RCLK_LO;		//RCLK PB2
 
 }
 
 // Returns local register image
-uint8_t SR_GetCurrentRegister(void){
-  return LocalRegisterImage;
+uint8_t SR_Read_GetCurrReg(void){
+  return localRegisterImage;
 }
 
-// Create your own function header comment
-void SR_Write(uint8_t NewValue){
-	uint8_t BitValue = 0;
-  uint8_t BitCounter = 0;
+/* Function: SR_Read
+ * Designed to read from an 8-bit parallel-input/serial-output such as the
+ * MC74HC165 
+ */
+uint8_t SR_Read(void){
+	uint8_t valueRead = 0;
+    
+  // latch the data from the pins by lowering and raising the SH_LD pin
+	HWREG(GPIO_PORTB_BASE+(GPIO_O_DATA + ALL_BITS)) &= SH_LD_LO;
+  HWREG(GPIO_PORTB_BASE+(GPIO_O_DATA + ALL_BITS)) |= SH_LD_HI;
 	
-	LocalRegisterImage = NewValue; // save a local copy
+  
+	
+	// get data out over shift while pulsing the serial clock
+	for (uint8_t bit = 0; bit < NUM_BITS; bit++)  {
+    // raise the register clock -> give extra time to set up
+    HWREG(GPIO_PORTB_BASE+(GPIO_O_DATA + ALL_BITS)) |= RCLK_HI;
+    volatile int wait = 0;
+    // lower the register clock
+    HWREG(GPIO_PORTB_BASE+(GPIO_O_DATA + ALL_BITS)) &= RCLK_LO;
+		// read the value off the 
+    uint8_t rawVal = HWREG(GPIO_PORTB_BASE+(GPIO_O_DATA + ALL_BITS)) & DATA_IN;
+    if(rawVal) printf("Bit%d hi\n\r", bit);
+    else printf("Bit%d lo\n\r", bit);
+    
+    valueRead |= (rawVal << (7 - bit));     // assemble byte to return
+  }
 
-	// lower the register clock
-	HWREG(GPIO_PORTB_BASE+(GPIO_O_DATA + ALL_BITS)) &= RCLK_LO;
-	
-	// shift out the data while pulsing the serial clock
-	for (BitCounter=0; BitCounter<8; BitCounter++)  {
-			
-		//Isolate the MSB of NewValue, put it into the LSB position and output		
-		//GET_MSB Macro function:
-		// Isolate the MSB of NewValue, put it into the LSB position and output
-		// Shift bit in question over to the LSB
-					
-		BitValue = GET_MSB_IN_LSB((NewValue<<BitCounter));
-		if(BitValue)
-			HWREG(GPIO_PORTE_BASE+(GPIO_O_DATA + ALL_BITS)) |= BIT2HI;
-		else HWREG(GPIO_PORTE_BASE+(GPIO_O_DATA + ALL_BITS)) &= BIT2LO; 	
-						
-	//print values of BitValue and NewValue for each point in the loop
-	//printf("\nDataOnPin = BitValue = %d, NewValue = %d\r\n", BitValue, NewValue); 
-					
-	//Push the value out of the shift register output 
-	// raise SCLK
-		HWREG(GPIO_PORTB_BASE+(GPIO_O_DATA + ALL_BITS)) |= SCLK_HI;
-	// lower SCLK
-		HWREG(GPIO_PORTB_BASE+(GPIO_O_DATA + ALL_BITS)) &= SCLK_LO;
-	}
-	 
-		// raise the register clock to latch the new data
-		HWREG(GPIO_PORTB_BASE+(GPIO_O_DATA + ALL_BITS)) |= RCLK_HI;  
-	
+    localRegisterImage = valueRead;
+    return valueRead;
 }
 

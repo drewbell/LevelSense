@@ -418,6 +418,11 @@
           <GroupName>Source</GroupName>
           <Files>
             <File>
+              <FileName>TemplateFSM.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Source\TemplateFSM.c</FilePath>
+            </File>
+            <File>
               <FileName>TemplateService.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Source\TemplateService.c</FilePath>
@@ -466,11 +471,6 @@
               <FileName>TestHarnessService0.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Source\TestHarnessService0.c</FilePath>
-            </File>
-            <File>
-              <FileName>TemplateFSM.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\Source\TemplateFSM.c</FilePath>
             </File>
             <File>
               <FileName>ShiftRegisterRead.c</FileName>
@@ -593,11 +593,6 @@
               <FilePath>.\Headers\ShiftRegisterWrite.h</FilePath>
             </File>
             <File>
-              <FileName>SpeedCounterService.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\Headers\SpeedCounterService.h</FilePath>
-            </File>
-            <File>
               <FileName>PWM.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\Headers\PWM.h</FilePath>
@@ -611,6 +606,11 @@
               <FileName>ShiftRegisterRead.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\Headers\ShiftRegisterRead.h</FilePath>
+            </File>
+            <File>
+              <FileName>ButtonDebounce.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Headers\ButtonDebounce.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -1168,6 +1168,11 @@
           <GroupName>Source</GroupName>
           <Files>
             <File>
+              <FileName>TemplateFSM.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Source\TemplateFSM.c</FilePath>
+            </File>
+            <File>
               <FileName>TemplateService.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Source\TemplateService.c</FilePath>
@@ -1216,11 +1221,6 @@
               <FileName>TestHarnessService0.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Source\TestHarnessService0.c</FilePath>
-            </File>
-            <File>
-              <FileName>TemplateFSM.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\Source\TemplateFSM.c</FilePath>
             </File>
             <File>
               <FileName>ShiftRegisterRead.c</FileName>
@@ -1343,11 +1343,6 @@
               <FilePath>.\Headers\ShiftRegisterWrite.h</FilePath>
             </File>
             <File>
-              <FileName>SpeedCounterService.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\Headers\SpeedCounterService.h</FilePath>
-            </File>
-            <File>
               <FileName>PWM.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\Headers\PWM.h</FilePath>
@@ -1361,6 +1356,11 @@
               <FileName>ShiftRegisterRead.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\Headers\ShiftRegisterRead.h</FilePath>
+            </File>
+            <File>
+              <FileName>ButtonDebounce.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Headers\ButtonDebounce.h</FilePath>
             </File>
           </Files>
         </Group>

@@ -173,7 +173,7 @@ bool InitializeButtonDebounce ( uint8_t Priority )
   // Start debounce timer (timer posts to ButtonDebounceSM)
   ES_Timer_InitTimer(ButtonDebounceTimer, DBDelay);
 	
-	printf("InitButtonDB Done");
+	printf("InitButtonDB Done\n\r");
 
   // post the initial transition event
   ThisEvent.EventType = ES_INIT;
